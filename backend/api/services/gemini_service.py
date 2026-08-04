@@ -4,8 +4,9 @@ import os
 from google import genai
 
 # os.environ.get kullanmadan, anahtarı doğrudan tırnak içinde yazın
-client = genai.Client(api_key="AQ.Ab8RN6LhzK21ObtLjZKNmce4ZVmEfknJcWR8XJNCq-64aGOZZg")
-
+client = genai.Client(
+    api_key=os.getenv("GEMINI_API_KEY")
+)
 class GeminiService:
 
     @classmethod

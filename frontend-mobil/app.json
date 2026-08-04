@@ -1,10 +1,11 @@
 {
   "expo": {
-    "name": "frontend-mobil",
-    "slug": "frontend-mobil",
+    "owner": "glauxora",
+    "name": "Recall Vocab",
+    "slug": "recall-vocab",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/gifs/logo1.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
@@ -13,11 +14,13 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.glauxora.recallvocab"
     },
     "android": {
+      "package": "com.glauxora.recallvocab",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/gifs/logo1.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true
@@ -27,6 +30,11 @@
     },
     "plugins": [
       "expo-secure-store"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "8150324e-6f19-4a2a-9183-12ae277e9397"
+      }
+    }
   }
 }
