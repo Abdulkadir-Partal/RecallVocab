@@ -40,3 +40,5 @@ Thumbs.db
 # api/migrations/
 # !api/migrations/__init__.py
 api_data.json
+# Expo
+frontend-mobil/.expo/
