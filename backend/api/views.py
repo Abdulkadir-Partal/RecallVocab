@@ -14,6 +14,7 @@ from django.core.validators import validate_email
 from django.core.mail import send_mail
 from django.db import transaction
 from django.http import HttpResponse
+from django.http import JsonResponse
 from django.urls import reverse
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -28,6 +29,11 @@ from .services.wordbank_service import WordBankService
 LEVEL_ORDER = ["A1", "A2", "B1", "B2", "C1", "C2"]
 User = get_user_model()
 
+def health_check(request):
+    return JsonResponse({
+        "status": "ok",
+        "service": "Recall Vocab API"
+    })
 
 class RegisterView(APIView):
     permission_classes = [AllowAny]
