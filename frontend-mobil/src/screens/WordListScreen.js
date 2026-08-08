@@ -88,6 +88,7 @@ export default function WordListScreen() {
     <View style={styles.container}>
       <FlatList
         data={words}
+        contentContainerStyle={styles.listContent}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => {
           const trustStyle = getTrustColor(item.trust_point);
@@ -98,8 +99,8 @@ export default function WordListScreen() {
               <View style={[styles.cardInner, trustCardStyles.cardInner]}> 
                 <View style={styles.cardHeader}>
                   <View style={styles.cardTextContainer}>
-                    <Text style={styles.english}>{item.english_word}</Text>
-                    <Text style={styles.turkish}>{item.turkish_meaning}</Text>
+                    <Text style={[styles.english, trustCardStyles.trustText]}>{item.english_word}</Text>
+                    <Text style={[styles.turkish, trustCardStyles.trustText]}>{item.turkish_meaning}</Text>
                   </View>
 
                   <View style={[styles.trustBadge, trustCardStyles.trustBadge]}> 
@@ -109,7 +110,7 @@ export default function WordListScreen() {
 
                 <View style={styles.actionsRow}>
                   <TouchableOpacity onPress={() => handleShowDetails(item)}>
-                    <Text style={styles.detailsButton}>
+                    <Text style={[styles.detailsButton, trustCardStyles.trustText]}>
                       {expandedId === item.id ? "Hide Details" : "Show Details"}
                     </Text>
                   </TouchableOpacity>
@@ -122,13 +123,13 @@ export default function WordListScreen() {
                 {expandedId === item.id && (
                   <View style={styles.detailsContainer}>
                     {loadingInfo ? (
-                      <ActivityIndicator />
+                      <ActivityIndicator color={trustStyle.color} />
                     ) : (
                       <>
                         {(wordInfo?.meaning2 || wordInfo?.meaning3) && (
                           <>
-                            <Text style={styles.sectionTitle}>Other Meanings</Text>
-                            <Text style={styles.sectionText}>
+                            <Text style={[styles.sectionTitle, { color: trustStyle.color }]}>Other Meanings</Text>
+                            <Text style={[styles.sectionText, { color: trustStyle.color }]}>
                               {[wordInfo?.meaning2, wordInfo?.meaning3]
                                 .filter(Boolean)
                                 .join(", ")}
@@ -136,21 +137,21 @@ export default function WordListScreen() {
                           </>
                         )}
 
-                        <Text style={styles.sectionTitle}>Definition</Text>
-                        <Text style={styles.sectionText}>{wordInfo?.definition || "-"}</Text>
+                        <Text style={[styles.sectionTitle, { color: trustStyle.color }]}>Definition</Text>
+                        <Text style={[styles.sectionText, { color: trustStyle.color }]}>{wordInfo?.definition || "-"}</Text>
 
-                        <Text style={styles.sectionTitle}>Example</Text>
-                        <Text style={styles.sectionText}>{wordInfo?.example || "-"}</Text>
+                        <Text style={[styles.sectionTitle, { color: trustStyle.color }]}>Example</Text>
+                        <Text style={[styles.sectionText, { color: trustStyle.color }]}>{wordInfo?.example || "-"}</Text>
 
-                        <Text style={styles.sectionTitle}>Pronunciation</Text>
-                        <Text style={styles.sectionText}>{wordInfo?.phonetic || "-"}</Text>
+                        <Text style={[styles.sectionTitle, { color: trustStyle.color }]}>Pronunciation</Text>
+                        <Text style={[styles.sectionText, { color: trustStyle.color }]}>{wordInfo?.phonetic || "-"}</Text>
 
-                        <Text style={[styles.trust, trustCardStyles.trustText]}>Trust Point: {item.trust_point}</Text>
+                        <Text style={[styles.trust, { color: trustStyle.color }]}>Trust Point: {item.trust_point}</Text>
 
                         <TouchableOpacity onPress={() => playAudio(item.english_word)}>
-                          <View style={styles.listenContainer}>
-                            <Speaker width={24} height={24} fill="#0066cc" />
-                            <Text style={styles.listenText}>Listen</Text> 
+                          <View style={[styles.listenContainer, { backgroundColor: trustCardStyles.cardInner.backgroundColor }]}>
+                            <Speaker width={24} height={24} fill={trustStyle.color} />
+                            <Text style={[styles.listenText, { color: trustStyle.color }]}>Listen</Text>
                           </View>
                         </TouchableOpacity>
                       </>

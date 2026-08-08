@@ -1,9 +1,18 @@
 import { StyleSheet } from "react-native";
 
+// Tema paleti (HomeScreenStyles.js / ReviewScreenStyles.js ile aynı)
+const CREAM = "#F5EFE6";
+const OLIVE_DARK = "#4B5D3A";
+const TEXT_DARK = "#2F2A1E";
+const TEXT_MUTED = "#7A7563";
+const BORDER = "#E3DCC8";
+const BUBBLE_BG = "#EFE9DA";
+
 // Trust point 0 -> kırmızımsı, 1 -> yeşilimsi. Doygunluk düşük tutuldu,
 // böylece kart üzerinde yalın bir "durum rengi" gibi duruyor, göz yormuyor.
 // Trust point 0 -> kırmızı, 0.5 -> turuncu, 1 -> yeşil.
 // İki aşamalı geçiş: 0-0.5 arası kırmızıdan turuncuya, 0.5-1 arası turuncudan yeşile.
+// Bu renkler bilinçli olarak tema paletinin dışında tutuldu; durum bilgisi taşıyor.
 export const getTrustColor = (trust) => {
   const value = Math.max(0, Math.min(1, Number(trust) || 0));
 
@@ -13,9 +22,9 @@ export const getTrustColor = (trust) => {
     { r: 16, g: 185, b: 129 },  // #10B981 yeşil     (1.0)
   ];
 
-  const scaled = value * 2; // 0-2 aralığına genişlet
-  const index = Math.min(1, Math.floor(scaled)); // 0 veya 1
-  const localT = scaled - index; // o aralık içindeki oran
+  const scaled = value * 2;
+  const index = Math.min(1, Math.floor(scaled));
+  const localT = scaled - index;
 
   const from = stops[index];
   const to = stops[index + 1];
@@ -29,7 +38,7 @@ export const getTrustColor = (trust) => {
 
 export const getTrustCardStyles = (trustColor) => ({
   card: {
-    borderTopWidth: 6, // 4'ten 6'ya çıkarıldı
+    borderTopWidth: 6,
     borderTopColor: trustColor,
   },
   trustText: {
@@ -40,13 +49,13 @@ export const getTrustCardStyles = (trustColor) => ({
 export default StyleSheet.create({
   card: {
     width: "100%",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: CREAM,
     borderRadius: 18,
     padding: 22,
     borderWidth: 1,
-    borderColor: "#E2E8F0",
-    shadowColor: "#0F172A",
-    shadowOpacity: 0.06,
+    borderColor: BORDER,
+    shadowColor: OLIVE_DARK,
+    shadowOpacity: 0.08,
     shadowRadius: 14,
     shadowOffset: { width: 0, height: 6 },
     elevation: 4,
@@ -56,7 +65,7 @@ export default StyleSheet.create({
     fontSize: 26,
     fontFamily: "Nunito",
     fontWeight: "700",
-    color: "#0F172A",
+    color: TEXT_DARK,
     marginBottom: 16,
     letterSpacing: 0.2,
   },
@@ -71,7 +80,7 @@ export default StyleSheet.create({
     fontSize: 13,
     fontFamily: "Nunito",
     fontWeight: "600",
-    color: "#64748B",
+    color: TEXT_MUTED,
     marginRight: 8,
   },
 
@@ -86,7 +95,7 @@ export default StyleSheet.create({
     width: 18,
     height: 18,
     borderRadius: 9,
-    backgroundColor: "#E2E8F0",
+    backgroundColor: BORDER,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -95,11 +104,11 @@ export default StyleSheet.create({
     fontSize: 11,
     fontFamily: "Nunito",
     fontWeight: "700",
-    color: "#64748B",
+    color: TEXT_MUTED,
   },
 
   infoBubble: {
-    backgroundColor: "#F1F5F9",
+    backgroundColor: BUBBLE_BG,
     borderRadius: 10,
     padding: 12,
     marginBottom: 16,
@@ -109,7 +118,7 @@ export default StyleSheet.create({
     fontSize: 13,
     fontFamily: "Nunito",
     fontWeight: "500",
-    color: "#475569",
+    color: TEXT_MUTED,
     lineHeight: 18,
   },
 
@@ -117,13 +126,13 @@ export default StyleSheet.create({
     fontSize: 18,
     fontFamily: "Nunito",
     fontWeight: "500",
-    color: "#334155",
+    color: TEXT_DARK,
     marginBottom: 20,
     lineHeight: 24,
   },
 
   button: {
-    backgroundColor: "#4F46E5",
+    backgroundColor: OLIVE_DARK,
     borderRadius: 12,
     paddingVertical: 14,
     alignItems: "center",
@@ -147,6 +156,6 @@ export default StyleSheet.create({
     fontSize: 14,
     fontFamily: "Nunito",
     fontWeight: "600",
-    color: "#4F46E5",
+    color: OLIVE_DARK,
   },
 });

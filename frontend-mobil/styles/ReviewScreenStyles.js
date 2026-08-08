@@ -1,9 +1,17 @@
 import { StyleSheet } from "react-native";
 
+// HomeScreenStyles.js ile aynı palet
+const CREAM = "#F5EFE6";
+const BG = "#F7F2E7";
+const OLIVE_DARK = "#4B5D3A";
+const TEXT_DARK = "#2F2A1E";
+const TEXT_MUTED = "#7A7563";
+const BORDER = "#E3DCC8";
+
 export default StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#faf8f3",
+    backgroundColor: BG,
   },
 
   content: {
@@ -16,15 +24,16 @@ export default StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#F8FAFC",
+    backgroundColor: BG,
   },
 
   progress: {
     fontSize: 14,
     fontFamily: "Nunito",
     fontWeight: "600",
-    color: "#64748B",
-    marginBottom: 16,
+    color: TEXT_MUTED,
+    marginBottom: 12,
+    marginTop: 14,
     letterSpacing: 0.3,
   },
 
@@ -39,14 +48,14 @@ export default StyleSheet.create({
 
   detailCard: {
     marginTop: 16,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: CREAM,
     borderRadius: 18,
     padding: 20,
     width: "100%",
     borderWidth: 1,
-    borderColor: "#E2E8F0",
-    shadowColor: "#0F172A",
-    shadowOpacity: 0.05,
+    borderColor: BORDER,
+    shadowColor: OLIVE_DARK,
+    shadowOpacity: 0.06,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 4 },
     elevation: 3,
@@ -56,7 +65,7 @@ export default StyleSheet.create({
     fontFamily: "Nunito",
     fontWeight: "700",
     fontSize: 13,
-    color: "#94A3B8",
+    color: TEXT_MUTED,
     marginTop: 14,
     textTransform: "uppercase",
     letterSpacing: 0.5,
@@ -65,7 +74,7 @@ export default StyleSheet.create({
   sectionText: {
     fontFamily: "Nunito",
     fontWeight: "500",
-    color: "#1E293B",
+    color: TEXT_DARK,
     fontSize: 15,
     lineHeight: 22,
     marginTop: 4,
@@ -76,26 +85,25 @@ export default StyleSheet.create({
     fontSize: 15,
     fontFamily: "Nunito",
     fontWeight: "600",
-    color: "#4F46E5",
+    color: OLIVE_DARK,
   },
 
   audioButton: {
     marginTop: 10,
   },
 
-  // --- YENİ EKLENEN STİLLER (DİĞERLERİNİ BOZMAZ) ---
   listenContainer: {
-    flexDirection: "row",     // Elemanları yan yana dizer
-    alignItems: "center",     // Simge ve yazıyı dikeyde tam olarak ortalar
-    gap: 8,                   // Simge ile yazı arasına 8px boşluk bırakır
-    marginTop: 14,            // Kart içindeki diğer elemanlardan ayrılması için üst boşluk
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginTop: 14,
   },
 
   listenText: {
     fontFamily: "Nunito",
     fontWeight: "700",
     fontSize: 14,
-    color: "#0066cc",         // Simgeden gelen mavi ton ile eşitledik
+    color: OLIVE_DARK,
     letterSpacing: 0.5,
   },
 });

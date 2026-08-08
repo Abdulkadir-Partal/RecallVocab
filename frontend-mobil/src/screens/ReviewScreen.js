@@ -199,7 +199,7 @@ export default function ReviewScreen() {
       </Animated.View>
 
       {loadingInfo && (
-        <ActivityIndicator size="small" color="#4F46E5" style={styles.loadingInfo} />
+        <ActivityIndicator size="large" color="#4B5D3A" />
       )}
 
       {showDetails && wordInfo && (
@@ -236,7 +236,7 @@ export default function ReviewScreen() {
 
           <TouchableOpacity onPress={() => playAudio(currentWord.english_word)}>
             <View style={styles.listenContainer}>
-              <Speaker width={24} height={24} fill="#0066cc" />
+              <Speaker width={24} height={24} fill="#4B5D3A" />
               {/* Tam uyum için buradaki stili listenText yaptık */}
               <Text style={styles.listenText}>Listen</Text> 
             </View>

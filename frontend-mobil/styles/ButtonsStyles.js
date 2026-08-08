@@ -7,9 +7,9 @@ const COLORS = {
   textVariant: "#6B7280",
   linkVariant: "#111827",
 
-  // AI varyantı — HomeScreen'deki indigo-lavanta gradyan ailesiyle uyumlu
-  aiBorder: "#4F46E5",
-  aiText: "#3730A3",
+  // AI varyantı — ana tema ile daha canlı uyumlu
+  aiBorder: "#6B7A45",
+  aiText: "#4B5D3A",
 
   // success (Biliyorum) — streak kartlarındaki yeşil aileyle uyumlu
   successFill: "#E4F8EB",
@@ -23,18 +23,18 @@ const COLORS = {
 };
 
 // AI butonunun gradyan renkleri — Buttons.js içinde LinearGradient'e veriliyor
-export const AI_GRADIENT_COLORS = ["#E4E7FC", "#F3EEFB"];
+export const AI_GRADIENT_COLORS = ["#E8F0D7", "#F8EFD3"];
 
 const styles = StyleSheet.create({
   base: {
-    borderRadius: 30,
+    borderRadius: 28,
     borderWidth: 1.5,
     borderColor: COLORS.border,
     backgroundColor: COLORS.fill,
-    paddingVertical: 14,
+    paddingVertical: 11,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 10,
+    marginBottom: 8,
   },
 
   text: {
@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
   textContainer: {
     borderWidth: 0,
     backgroundColor: "transparent",
-    paddingVertical: 12,
+    paddingVertical: 8,
     marginBottom: 0,
   },
   textVariantText: {
@@ -99,8 +99,8 @@ const styles = StyleSheet.create({
   },
   aiGradient: {
     width: "100%",
-    borderRadius: 28,
-    paddingVertical: 14,
+    borderRadius: 26,
+    paddingVertical: 11,
     alignItems: "center",
     justifyContent: "center",
   },

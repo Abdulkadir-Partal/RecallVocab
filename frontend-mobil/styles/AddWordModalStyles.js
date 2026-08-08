@@ -1,5 +1,13 @@
 import { StyleSheet } from "react-native";
 
+const CREAM = "#F9F6EE";
+const CREAM_DEEP = "#F2ECDD";
+const OLIVE = "#4B5D3A";
+const OLIVE_MUTED = "#6E7B57";
+const TEXT_DARK = "#2F2A1E";
+const TEXT_MUTED = "#7A7563";
+const BORDER = "#E3DCC8";
+
 export default StyleSheet.create({
 
   overlay: {
@@ -9,28 +17,29 @@ export default StyleSheet.create({
   },
 
   container: {
-    backgroundColor: "#faf8f3",
+    backgroundColor: CREAM,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     padding: 24,
     paddingBottom: 40,
+    borderTopWidth: 1,
+    borderColor: BORDER,
   },
 
   handle: {
     width: 50,
     height: 5,
     borderRadius: 10,
-    backgroundColor: "#D1D5DB",
+    backgroundColor: "#C7BFAE",
     alignSelf: "center",
     marginBottom: 20,
   },
 
   title: {
     fontSize: 22,
-    fontFamily: "Nunito",
-    fontWeight: "700",
+    fontFamily: "Nunito-Bold",
     marginBottom: 20,
-    color: "#111827",
+    color: OLIVE,
   },
 
   switchRow: {
@@ -44,8 +53,8 @@ export default StyleSheet.create({
   label: {
     fontSize: 14,
     fontFamily: "Nunito",
-    fontWeight: "500",
-    color: "#6B7280",
+    fontWeight: "600",
+    color: TEXT_MUTED,
   },
 
   swapButton: {
@@ -70,7 +79,7 @@ export default StyleSheet.create({
 
   input: {
     borderWidth: 1,
-    borderColor: "#D1D5DB",
+    borderColor: BORDER,
     borderRadius: 12,
     paddingHorizontal: 15,
     paddingVertical: 12,
@@ -78,23 +87,26 @@ export default StyleSheet.create({
     fontSize: 16,
     fontFamily: "Nunito",
     fontWeight: "500",
-    color: "#111827",
+    color: TEXT_DARK,
+    backgroundColor: "#FFFDF9",
   },
 
   meaningBox: {
     minHeight: 55,
     borderRadius: 12,
-    backgroundColor: "#F3F4F6",
+    backgroundColor: CREAM_DEEP,
     justifyContent: "center",
     paddingHorizontal: 15,
     marginBottom: 25,
+    borderWidth: 1,
+    borderColor: BORDER,
   },
 
   meaning: {
     fontSize: 16,
     fontFamily: "Nunito",
     fontWeight: "500",
-    color: "#111827",
+    color: TEXT_DARK,
   },
 
   button: {
