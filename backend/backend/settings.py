@@ -37,7 +37,7 @@ DEBUG = os.getenv("DEBUG", "True") == "True"
 
 ALLOWED_HOSTS = os.getenv(
     "ALLOWED_HOSTS",
-    "127.0.0.1,localhost,192.168.1.113"
+    "127.0.0.1,localhost"
 ).split(",")
 # Application definition
 
