@@ -180,3 +180,37 @@ class EmailVerificationToken(models.Model):
 
     def is_valid(self):
         return self.used_at is None and self.expires_at > timezone.now()
+
+
+class AccountActionToken(models.Model):
+    ACTION_PASSWORD_CHANGE = "password_change"
+    ACTION_DELETE_ACCOUNT = "delete_account"
+
+    ACTION_CHOICES = [
+        (ACTION_PASSWORD_CHANGE, "password_change"),
+        (ACTION_DELETE_ACCOUNT, "delete_account"),
+    ]
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="account_action_tokens",
+    )
+    action = models.CharField(max_length=32, choices=ACTION_CHOICES)
+    token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    expires_at = models.DateTimeField()
+    used_at = models.DateTimeField(null=True, blank=True)
+    pending_value = models.CharField(max_length=255, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    @classmethod
+    def create_for_user(cls, user, action, pending_value=""):
+        return cls.objects.create(
+            user=user,
+            action=action,
+            expires_at=timezone.now() + timedelta(hours=24),
+            pending_value=pending_value,
+        )
+
+    def is_valid(self):
+        return self.used_at is None and self.expires_at > timezone.now()

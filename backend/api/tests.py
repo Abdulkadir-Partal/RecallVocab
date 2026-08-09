@@ -130,3 +130,45 @@ class EmailVerificationTests(TestCase):
         )
         self.assertEqual(login.status_code, 200)
         self.assertIn("access", login.data)
+
+
+class AccountSettingsEmailConfirmationTests(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            username="settings@example.com",
+            email="settings@example.com",
+            password="secure-test-password",
+        )
+        self.client = APIClient()
+        self.client.force_authenticate(self.user)
+
+    @patch("api.views.send_mail")
+    def test_password_change_is_immediate_without_email_confirmation(self, mocked_send_mail):
+        response = self.client.post(
+            "/api/auth/change-password/",
+            {"current_password": "secure-test-password", "new_password": "new-strong-password"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        mocked_send_mail.assert_not_called()
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password("new-strong-password"))
+        self.assertFalse(self.user.account_action_tokens.filter(action="password_change").exists())
+
+    @patch("api.views.send_mail")
+    def test_delete_account_requires_email_confirmation(self, mocked_send_mail):
+        response = self.client.post(
+            "/api/auth/delete-account/",
+            {"password": "secure-test-password"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        mocked_send_mail.assert_called_once()
+
+        token = self.user.account_action_tokens.get(action="delete_account")
+        confirm_response = self.client.get(reverse("confirm-delete-account", kwargs={"token": token.token}))
+
+        self.assertEqual(confirm_response.status_code, 200)
+        self.assertFalse(get_user_model().objects.filter(pk=self.user.pk).exists())

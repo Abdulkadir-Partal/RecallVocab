@@ -45,6 +45,7 @@ import api from "../services/api";
 import { getStreak } from "../services/homeService";
 import DictionaryIcon from "../../assets/gifs/book.svg";
 import LeavesIcon from "../../assets/gifs/leaves.svg";
+import ProfileIcon from "../../assets/gifs/profile.svg";
 
 // Streak günü sulanmadıysa/sulandıysa dönen mesaj havuzları.
 // streak değerine göre havuz içinde döner, ardışık günlerde tekdüze olmasın diye.
@@ -136,135 +137,175 @@ export default function HomeScreen({ navigation, onLogout }) {
     : Math.max(0, nextThreshold - streak);
 
   return (
-    <LinearGradient
-      colors={HOME_GRADIENT_COLORS}
-      start={HOME_GRADIENT_START}
-      end={HOME_GRADIENT_END}
-      style={styles.container}
+  <LinearGradient
+    colors={HOME_GRADIENT_COLORS}
+    start={HOME_GRADIENT_START}
+    end={HOME_GRADIENT_END}
+    style={styles.container}
+  >
+    <ScrollView
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={styles.scrollContent}
     >
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
+      {/* Üstte tam genişlikte streak kartı */}
+      <LinearGradient
+        colors={STREAK_CARD_GRADIENTS[treeStage]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={[
+          styles.streakCardFull,
+          { borderColor: STREAK_CARD_BORDER_COLORS[treeStage] },
+        ]}
       >
-        {/* Üstte tam genişlikte streak kartı */}
-        <LinearGradient
-          colors={STREAK_CARD_GRADIENTS[treeStage]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={[
-            styles.streakCardFull,
-            { borderColor: STREAK_CARD_BORDER_COLORS[treeStage] },
-          ]}
-        >
-          <View style={styles.streakLeftCol}>
-            <View style={styles.streakTitleRow}>
-              <Text style={styles.streakCardTitle}>Streak </Text>
-              <TouchableOpacity
-                onPress={() => setShowStreakInfo(!showStreakInfo)}
-                style={styles.infoButton}
-              >
-                <Text style={styles.infoButtonText}>i</Text>
-              </TouchableOpacity>
-            </View>
-            <Text style={styles.streakBigNumber}>
-              {streak} <Text style={styles.streakUnit}>gün</Text>
-            </Text>
+        <View style={styles.streakLeftCol}>
+          <View style={styles.streakTitleRow}>
+            <Text style={styles.streakCardTitle}>Streak</Text>
+
+            <TouchableOpacity
+              onPress={() => setShowStreakInfo(!showStreakInfo)}
+              style={styles.infoButton}
+            >
+              <Text style={styles.infoButtonText}>i</Text>
+            </TouchableOpacity>
           </View>
 
-          <View style={styles.streakRightCol}>
-            <Text style={styles.streakCardTitle}>Ağacın 🌳</Text>
-            <Text style={styles.streakEncourage}>
-              {getTreeMessage(isMaxStage, isGoalReallyCompleted, streak)}
-            </Text>
-            <View style={styles.streakProgressTrack}>
-              <View
-                style={[
-                  styles.streakProgressFill,
-                  { width: `${treeProgress * 100}%` },
-                ]}
-              />
-            </View>
-          </View>
-        </LinearGradient>
-
-        {showStreakInfo && (
-          <View style={styles.infoBubble}>
-            <Text style={styles.infoBubbleText}>
-              Streak, bir gün içinde en az 1 kelime ekleyip 5 review
-              tamamladığında artar.
-            </Text>
-          </View>
-        )}
-
-        {/* İki küçük istatistik kartı */}
-        <View style={styles.statsRow}>
-          <View style={styles.statCard}>
-            <Text style={styles.cardTitle}>Toplam Kelime</Text>
-            <View style={styles.statValueRow}>
-              <Text style={styles.total}>{totalWords}</Text>
-              <DictionaryIcon width={25} height={25} fill={ICON_COLOR} />
-            </View>
-          </View>
-
-          <View style={styles.statCard}>
-            <Text style={styles.cardTitle}>Bugün Öğrenilen</Text>
-            <View style={styles.statValueRow}>
-              <Text style={styles.total}>{todayLearned}</Text>
-              <LeavesIcon width={22} height={22} />
-            </View>
-          </View>
+          <Text style={styles.streakBigNumber}>
+            {streak} <Text style={styles.streakUnit}>gün</Text>
+          </Text>
         </View>
 
-        {/* Büyük ağaç kartı */}
-        <View style={styles.treeCard}>
-          <Text style={styles.treeCardTitle}>
-            {TREE_STAGE_NAMES[treeStage]}
+        <View style={styles.streakRightCol}>
+          <Text style={styles.streakCardTitle}>Ağacın 🌳</Text>
+
+          <Text style={styles.streakEncourage}>
+            {getTreeMessage(
+              isMaxStage,
+              isGoalReallyCompleted,
+              streak
+            )}
           </Text>
-          <Text style={styles.treeCardSubtitle}>Seviye {treeStage}</Text>
 
-          <View style={styles.treeImageWrap}>
-            <Image
-              source={treeImage}
-              style={{ width: treeImageSize * 2.2, height: treeImageSize * 2.2 }}
-              resizeMode="contain"
-            />
-          </View>
-
-          <View style={styles.treeProgressTrack}>
+          <View style={styles.streakProgressTrack}>
             <View
               style={[
-                styles.treeProgressFill,
+                styles.streakProgressFill,
                 { width: `${treeProgress * 100}%` },
               ]}
             />
           </View>
-          <Text style={styles.treeProgressText}>
-            {isMaxStage
-              ? "Maksimum seviyedesin!"
-              : `Bir sonraki seviye: ${daysUntilNextStage} gün kaldı`}
+        </View>
+      </LinearGradient>
+
+      {showStreakInfo && (
+        <View style={styles.infoBubble}>
+          <Text style={styles.infoBubbleText}>
+            Streak, bir gün içinde en az 1 kelime ekleyip 5 review
+            tamamladığında artar.
           </Text>
         </View>
+      )}
 
-        <Button title="Add Word" onPress={() => setModalVisible(true)} />
+      {/* İki küçük istatistik kartı */}
+      <View style={styles.statsRow}>
+        <View style={styles.statCard}>
+          <Text style={styles.cardTitle}>Toplam Kelime</Text>
 
-        <AddWordModal
-          visible={modalVisible}
-          onClose={() => setModalVisible(false)}
-          onWordAdded={loadWords}
-        />
+          <View style={styles.statValueRow}>
+            <Text style={styles.total}>{totalWords}</Text>
+            <DictionaryIcon
+              width={25}
+              height={25}
+              fill={ICON_COLOR}
+            />
+          </View>
+        </View>
+
+        <View style={styles.statCard}>
+          <Text style={styles.cardTitle}>Bugün Öğrenilen</Text>
+
+          <View style={styles.statValueRow}>
+            <Text style={styles.total}>{todayLearned}</Text>
+            <LeavesIcon width={22} height={22} />
+          </View>
+        </View>
+      </View>
+
+      {/* Büyük ağaç kartı */}
+      <View style={styles.treeCard}>
+        <Text style={styles.treeCardTitle}>
+          {TREE_STAGE_NAMES[treeStage]}
+        </Text>
+
+        <Text style={styles.treeCardSubtitle}>
+          Seviye {treeStage}
+        </Text>
+
+        <View style={styles.treeImageWrap}>
+          <Image
+            source={treeImage}
+            style={{
+              width: treeImageSize * 2.2,
+              height: treeImageSize * 2.2,
+            }}
+            resizeMode="contain"
+          />
+        </View>
+
+        <View style={styles.treeProgressTrack}>
+          <View
+            style={[
+              styles.treeProgressFill,
+              { width: `${treeProgress * 100}%` },
+            ]}
+          />
+        </View>
+
+        <Text style={styles.treeProgressText}>
+          {isMaxStage
+            ? "Maksimum seviyedesin!"
+            : `Bir sonraki seviye: ${daysUntilNextStage} gün kaldı`}
+        </Text>
+      </View>
+
+      <Button
+        title="Add Word"
+        onPress={() => setModalVisible(true)}
+      />
+
+      <AddWordModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        onWordAdded={loadWords}
+      />
+
+      <Button
+        title="Word List"
+        onPress={() => navigation.navigate("Word List")}
+      />
+
+      <Button
+        title="Recall Vocabulary"
+        onPress={() => navigation.navigate("Review")}
+      />
+
+      <View style={styles.bottomButtonRow}>
+        <TouchableOpacity
+          style={styles.profileButton}
+          onPress={() => navigation.navigate("Profile")}
+          activeOpacity={0.8}
+        >
+          <ProfileIcon width={22} height={22} fill={ICON_COLOR} />
+        </TouchableOpacity>
 
         <Button
-          title="Word List"
-          onPress={() => navigation.navigate("Word List")}
+          title="Log Out"
+          onPress={onLogout}
+          variant="text"
+          style={styles.logoutButton}
+          textStyle={styles.logoutButtonText}
         />
-
-        <Button
-          title="Recall Vocabulary"
-          onPress={() => navigation.navigate("Review")}
-        />
-
-        <Button title="Log Out" onPress={onLogout} variant="text" />
-      </ScrollView>
-    </LinearGradient>
-  );
+      </View>
+    </ScrollView>
+  </LinearGradient>
+);
 }

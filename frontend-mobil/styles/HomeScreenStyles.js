@@ -48,6 +48,49 @@ const TEXT_MUTED = "#7A7563";
 const BORDER = "#E3DCC8";
 
 export default StyleSheet.create({
+  profileButton: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    backgroundColor: CREAM,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1.5,
+    borderColor: BORDER,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 3,
+    marginRight: 10,
+  },
+
+  profileButtonText: {
+    fontSize: 20,
+  },
+
+  bottomButtonRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 10,
+    marginBottom: 6,
+    gap: 8,
+  },
+
+  logoutButton: {
+    minWidth: 120,
+    backgroundColor: CREAM,
+    borderColor: BORDER,
+    borderWidth: 1.5,
+    borderRadius: 28,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+  },
+
   container: {
     flex: 1,
     paddingHorizontal: 16,

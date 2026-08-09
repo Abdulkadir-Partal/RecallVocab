@@ -45,3 +45,13 @@ export const logout = async () => {
   await SecureStore.deleteItemAsync(ACCESS_TOKEN_KEY);
   await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
 };
+
+export const changePassword = async (currentPassword, newPassword) => {
+  const response = await api.post("auth/change-password/", { current_password: currentPassword, new_password: newPassword });
+  return response.data;
+};
+
+export const deleteAccount = async (password) => {
+  const response = await api.post("auth/delete-account/", { password });
+  return response.data;
+};

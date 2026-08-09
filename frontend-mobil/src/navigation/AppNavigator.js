@@ -8,6 +8,7 @@ import AddWordScreen from "../screens/AddWordScreen";
 import WordListScreen from "../screens/WordListScreen";
 import ReviewScreen from "../screens/ReviewScreen";
 import AuthScreen from "../screens/AuthScreen";
+import ProfileScreen from "../screens/ProfileScreen";
 import { logout, restoreSession } from "../services/authService";
 
 const Stack = createNativeStackNavigator();
@@ -55,6 +56,10 @@ export default function AppNavigator() {
           name="Review"
           component={ReviewScreen}
         />
+
+        <Stack.Screen name="Profile">
+          {(props) => <ProfileScreen {...props} onLogout={handleLogout} />}
+        </Stack.Screen>
 
       </Stack.Navigator>
     </NavigationContainer>

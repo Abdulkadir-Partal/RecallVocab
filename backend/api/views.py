@@ -18,7 +18,7 @@ from django.http import JsonResponse
 from django.urls import reverse
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .models import Word, Review, LevelProgress, WordBank, EmailVerificationToken
+from .models import Word, Review, LevelProgress, WordBank, EmailVerificationToken, AccountActionToken
 from .serializers import WordSerializer, ReviewSerializer, WordSerializer
 from .services.services_tr import translate_word
 import random
@@ -112,6 +112,71 @@ class VerifyEmailView(APIView):
 class MeView(APIView):
     def get(self, request):
         return Response({"id": request.user.id, "email": request.user.email})
+
+
+class ChangePasswordView(APIView):
+    def post(self, request):
+        current_password = request.data.get("current_password") or ""
+        new_password = request.data.get("new_password") or ""
+
+        if not current_password or not new_password:
+            return Response({"error": "current_password and new_password are required."}, status=400)
+
+        if not request.user.check_password(current_password):
+            return Response({"error": "Current password is incorrect."}, status=400)
+
+        try:
+            validate_password(new_password)
+        except ValidationError as error:
+            return Response({"error": " ".join(error.messages)}, status=400)
+
+        request.user.set_password(new_password)
+        request.user.save(update_fields=["password"])
+        return Response({"message": "Password updated successfully."}, status=200)
+
+
+class DeleteAccountView(APIView):
+    def post(self, request):
+        password = request.data.get("password") or ""
+        if not password:
+            return Response({"error": "password is required."}, status=400)
+
+        if not request.user.check_password(password):
+            return Response({"error": "Current password is incorrect."}, status=400)
+
+        token = AccountActionToken.create_for_user(request.user, AccountActionToken.ACTION_DELETE_ACCOUNT)
+        confirmation_url = request.build_absolute_uri(
+            reverse("confirm-delete-account", kwargs={"token": token.token})
+        )
+        send_mail(
+            subject="RecallWord hesap silme onayı",
+            message=(
+                "Hesabınızı silmek için aşağıdaki bağlantıyı açın:\n\n"
+                f"{confirmation_url}\n\n"
+                "Bu bağlantı 24 saat geçerlidir."
+            ),
+            from_email=None,
+            recipient_list=[request.user.email],
+            fail_silently=False,
+        )
+        return Response({"message": "Confirmation email sent."}, status=200)
+
+
+class ConfirmDeleteAccountView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, token):
+        action_token = AccountActionToken.objects.select_related("user").filter(token=token).first()
+        if not action_token or not action_token.is_valid() or action_token.action != AccountActionToken.ACTION_DELETE_ACCOUNT:
+            return HttpResponse("Bu onay bağlantısı geçersiz veya süresi dolmuş.", status=400)
+
+        action_token.used_at = timezone.now()
+        action_token.save(update_fields=["used_at"])
+
+        user = action_token.user
+        user.delete()
+        return HttpResponse("Hesabınız başarıyla silindi.")
+
 
 class LevelWordsView(APIView):
 
