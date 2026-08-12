@@ -9,13 +9,13 @@ const saveTokens = async ({ access, refresh }) => {
   await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, refresh);
 };
 
-export const register = async (email, password) => {
-  const response = await api.post("auth/register/", { email, password });
+export const register = async (username, password) => {
+  const response = await api.post("auth/register/", { username: username.trim().toLowerCase(), password });
   return response.data;
 };
 
-export const login = async (email, password) => {
-  const response = await api.post("auth/login/", { username: email.trim().toLowerCase(), password });
+export const login = async (username, password) => {
+  const response = await api.post("auth/login/", { username: username.trim().toLowerCase(), password });
   await saveTokens(response.data);
   return response.data;
 };

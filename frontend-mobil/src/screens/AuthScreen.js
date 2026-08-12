@@ -4,26 +4,23 @@ import { login, register } from "../services/authService";
 
 export default function AuthScreen({ onAuthenticated }) {
   const [isRegistering, setIsRegistering] = useState(false);
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
   const submit = async () => {
-    if (!email.trim() || password.length < 8) {
-      Alert.alert("Eksik bilgi", "Geçerli bir e-posta ve en az 8 karakterlik parola girin.");
+    if (!username.trim() || password.length < 8) {
+      Alert.alert("Eksik bilgi", "Geçerli bir kullanıcı adı ve en az 8 karakterlik parola girin.");
       return;
     }
     try {
       setLoading(true);
       if (isRegistering) {
-        await register(email, password);
-        Alert.alert(
-          "E-postanı onayla",
-          "Onay bağlantısı e-posta adresine gönderildi. Bağlantıyı açtıktan sonra bu ekrandan giriş yapabilirsin."
-        );
+        await register(username, password);
+        Alert.alert("Kayıt başarılı", "Hesabınız oluşturuldu. Giriş yapabilirsiniz.");
         setIsRegistering(false);
       } else {
-        await login(email, password);
+        await login(username, password);
         onAuthenticated();
       }
     } catch (error) {
@@ -38,7 +35,7 @@ export default function AuthScreen({ onAuthenticated }) {
     <View style={styles.container}>
       <Text style={styles.title}>RecallWord</Text>
       <Text style={styles.subtitle}>{isRegistering ? "Hesabını oluştur" : "Hesabına giriş yap"}</Text>
-      <TextInput style={styles.input} value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" placeholder="E-posta" />
+      <TextInput style={styles.input} value={username} onChangeText={setUsername} autoCapitalize="none" placeholder="Kullanıcı adı" />
       <TextInput style={styles.input} value={password} onChangeText={setPassword} secureTextEntry placeholder="Parola" />
       <TouchableOpacity style={styles.button} onPress={submit} disabled={loading}>
         <Text style={styles.buttonText}>{loading ? "Bekleyin..." : isRegistering ? "Kayıt ol" : "Giriş yap"}</Text>

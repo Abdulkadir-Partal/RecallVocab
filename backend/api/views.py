@@ -1,7 +1,4 @@
-from time import timezone
-from unittest import result
-
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -10,19 +7,12 @@ from django.utils import timezone
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
-from django.core.validators import validate_email
-from django.core.mail import send_mail
-from django.db import transaction
-from django.http import HttpResponse
 from django.http import JsonResponse
-from django.urls import reverse
 from rest_framework.permissions import AllowAny
-from rest_framework_simplejwt.views import TokenObtainPairView
-from .models import Word, Review, LevelProgress, WordBank, EmailVerificationToken, AccountActionToken
+from .models import Word, Review, LevelProgress, WordBank
 from .serializers import WordSerializer, ReviewSerializer, WordSerializer
 from .services.services_tr import translate_word
 import random
-from django.shortcuts import get_object_or_404
 from .services.dictionary_service import DictionaryService
 from .services.wordbank_service import WordBankService
 
@@ -39,79 +29,36 @@ class RegisterView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        email = (request.data.get("email") or "").strip().lower()
+        username = (request.data.get("username") or "").strip()
         password = request.data.get("password") or ""
 
-        if not email or not password:
-            return Response({"error": "Email and password are required."}, status=400)
+        if not username or not password:
+            return Response({"error": "Username and password are required."}, status=400)
+
         try:
-            validate_email(email)
             validate_password(password)
         except ValidationError as error:
             return Response({"error": " ".join(error.messages)}, status=400)
-        existing_user = User.objects.filter(username=email).first()
-        if existing_user and existing_user.is_active:
-            return Response({"error": "An account with this email already exists."}, status=400)
 
-        try:
-            with transaction.atomic():
-                if existing_user:
-                    existing_user.set_password(password)
-                    existing_user.save(update_fields=["password"])
-                    EmailVerificationToken.objects.filter(user=existing_user, used_at__isnull=True).delete()
-                    user = existing_user
-                else:
-                    user = User.objects.create_user(
-                        username=email,
-                        email=email,
-                        password=password,
-                        is_active=False,
-                    )
+        existing_user = User.objects.filter(username=username).first()
+        if existing_user:
+            return Response({"error": "An account with this username already exists."}, status=400)
 
-                verification = EmailVerificationToken.create_for_user(user)
-                verification_url = request.build_absolute_uri(
-                    reverse("verify-email", kwargs={"token": verification.token})
-                )
-                send_mail(
-                    subject="RecallWord e-posta onayı",
-                    message=(
-                        "RecallWord hesabınızı etkinleştirmek için bağlantıyı açın:\n\n"
-                        f"{verification_url}\n\nBu bağlantı 24 saat geçerlidir."
-                    ),
-                    from_email=None,
-                    recipient_list=[email],
-                    fail_silently=False,
-                )
-        except Exception:
-            return Response(
-                {"error": "Onay e-postası gönderilemedi. SMTP ayarlarını kontrol edin."},
-                status=status.HTTP_503_SERVICE_UNAVAILABLE,
-            )
+        user = User.objects.create_user(
+            username=username,
+            password=password,
+            is_active=True,
+        )
 
         return Response(
-            {"id": user.id, "email": user.email, "message": "Verification email sent."},
+            {"id": user.id, "username": user.username, "message": "Registration successful."},
             status=status.HTTP_201_CREATED,
         )
 
 
-class VerifyEmailView(APIView):
-    permission_classes = [AllowAny]
-
-    def get(self, request, token):
-        verification = EmailVerificationToken.objects.select_related("user").filter(token=token).first()
-        if not verification or not verification.is_valid():
-            return HttpResponse("Bu doğrulama bağlantısı geçersiz veya süresi dolmuş.", status=400)
-
-        verification.user.is_active = True
-        verification.user.save(update_fields=["is_active"])
-        verification.used_at = timezone.now()
-        verification.save(update_fields=["used_at"])
-        return HttpResponse("E-posta adresiniz doğrulandı. RecallWord uygulamasına dönüp giriş yapabilirsiniz.")
-
-
 class MeView(APIView):
     def get(self, request):
-        return Response({"id": request.user.id, "email": request.user.email})
+        return Response({"id": request.user.id, "username": request.user.username})
 
 
 class ChangePasswordView(APIView):
@@ -144,38 +91,8 @@ class DeleteAccountView(APIView):
         if not request.user.check_password(password):
             return Response({"error": "Current password is incorrect."}, status=400)
 
-        token = AccountActionToken.create_for_user(request.user, AccountActionToken.ACTION_DELETE_ACCOUNT)
-        confirmation_url = request.build_absolute_uri(
-            reverse("confirm-delete-account", kwargs={"token": token.token})
-        )
-        send_mail(
-            subject="RecallWord hesap silme onayı",
-            message=(
-                "Hesabınızı silmek için aşağıdaki bağlantıyı açın:\n\n"
-                f"{confirmation_url}\n\n"
-                "Bu bağlantı 24 saat geçerlidir."
-            ),
-            from_email=None,
-            recipient_list=[request.user.email],
-            fail_silently=False,
-        )
-        return Response({"message": "Confirmation email sent."}, status=200)
-
-
-class ConfirmDeleteAccountView(APIView):
-    permission_classes = [AllowAny]
-
-    def get(self, request, token):
-        action_token = AccountActionToken.objects.select_related("user").filter(token=token).first()
-        if not action_token or not action_token.is_valid() or action_token.action != AccountActionToken.ACTION_DELETE_ACCOUNT:
-            return HttpResponse("Bu onay bağlantısı geçersiz veya süresi dolmuş.", status=400)
-
-        action_token.used_at = timezone.now()
-        action_token.save(update_fields=["used_at"])
-
-        user = action_token.user
-        user.delete()
-        return HttpResponse("Hesabınız başarıyla silindi.")
+        request.user.delete()
+        return Response({"message": "Account deleted successfully."}, status=200)
 
 
 class LevelWordsView(APIView):

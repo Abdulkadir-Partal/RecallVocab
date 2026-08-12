@@ -29,7 +29,7 @@ export default function ProfileScreen({ navigation, onLogout }) {
   };
 
   const handleDeleteAccount = async () => {
-    Alert.alert("Hesabı sil", "Hesabınızı silmek istediğinizden emin misiniz? Onay e-postası gönderilecek.", [
+    Alert.alert("Hesabı sil", "Hesabınızı silmek istediğinizden emin misiniz?", [
       { text: "İptal", style: "cancel" },
       { text: "Evet", style: "destructive", onPress: async () => {
         try {
@@ -37,7 +37,7 @@ export default function ProfileScreen({ navigation, onLogout }) {
           await deleteAccount(currentPassword);
           await logout();
           onLogout?.();
-          Alert.alert("Oturum kapatıldı", "Hesap silme onayı için e-posta gönderildi. Oturum kapatıldı, giriş ekranına yönlendirildin.");
+          Alert.alert("Hesap silindi", "Hesabınız başarıyla silindi. Giriş ekranına yönlendiriliyorsunuz.");
         } catch (error) {
           const detail = error.response?.data?.error || "Hesap silinemedi.";
           Alert.alert("Hata", detail);
