@@ -10,12 +10,14 @@ const saveTokens = async ({ access, refresh }) => {
 };
 
 export const register = async (username, password) => {
-  const response = await api.post("auth/register/", { username: username.trim().toLowerCase(), password });
+  const normalizedUsername = username.trim();
+  const response = await api.post("auth/register/", { username: normalizedUsername, password });
   return response.data;
 };
 
 export const login = async (username, password) => {
-  const response = await api.post("auth/login/", { username: username.trim().toLowerCase(), password });
+  const normalizedUsername = username.trim();
+  const response = await api.post("auth/login/", { username: normalizedUsername, password });
   await saveTokens(response.data);
   return response.data;
 };

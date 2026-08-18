@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   Animated,
   Easing,
 } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 
 import ReviewCard from "../components/ReviewCard";
 import { playAudio } from "../services/audioService";
@@ -31,16 +32,27 @@ export default function ReviewScreen() {
   const slideAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(1)).current;
 
-  useEffect(() => {
-    loadSession();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      setSession([]);
+      setCurrentIndex(0);
+      setShowMeaning(false);
+      setShowDetails(false);
+      setWordInfo(null);
+      loadSession();
+    }, [])
+  );
 
   const loadSession = async () => {
     try {
+      setLoading(true);
       const data = await getReviewSession();
-      setSession(data);
+      const safeSession = Array.isArray(data) ? data.filter(Boolean) : [];
+      setSession(safeSession);
+      setCurrentIndex(0);
     } catch (error) {
       console.log("Load Session Error:", error);
+      setSession([]);
     } finally {
       setLoading(false);
     }
@@ -54,7 +66,7 @@ export default function ReviewScreen() {
     );
   }
 
-  if (session.length === 0) {
+  if (!Array.isArray(session) || session.length === 0) {
     return (
       <View style={styles.loadingContainer}>
         <Text>No words found.</Text>
@@ -62,7 +74,15 @@ export default function ReviewScreen() {
     );
   }
 
-  const currentWord = session[currentIndex];
+  const currentWord = session[currentIndex] || null;
+
+  if (!currentWord) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text>No words found.</Text>
+      </View>
+    );
+  }
 
   // Kartı sola kaydırıp kaybolarak çıkar, sonra index'i günceller,
   // sağdan gelerek tekrar belirir.
@@ -101,6 +121,11 @@ export default function ReviewScreen() {
   };
 
   const nextWord = () => {
+    if (!Array.isArray(session) || session.length === 0) {
+      setCurrentIndex(0);
+      return;
+    }
+
     if (currentIndex < session.length - 1) {
       animateToNext(() => {
         setCurrentIndex((prev) => prev + 1);

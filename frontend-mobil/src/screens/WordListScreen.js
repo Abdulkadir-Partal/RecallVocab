@@ -19,9 +19,11 @@ export default function WordListScreen() {
     try {
       setLoading(true);
       const response = await api.get("words/");
-      setWords(response.data);
+      const safeWords = Array.isArray(response.data) ? response.data.filter(Boolean) : [];
+      setWords(safeWords);
     } catch (error) {
       console.log(error);
+      setWords([]);
     } finally {
       setLoading(false);
     }

@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import MaskedPasswordInput from "../components/MaskedPasswordInput";
 import { changePassword, deleteAccount, logout } from "../services/authService";
 
 export default function ProfileScreen({ navigation, onLogout }) {
@@ -55,17 +56,15 @@ export default function ProfileScreen({ navigation, onLogout }) {
 
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Şifre değiştir</Text>
-        <TextInput
+        <MaskedPasswordInput
           style={styles.input}
           placeholder="Mevcut şifre"
-          secureTextEntry
           value={currentPassword}
           onChangeText={setCurrentPassword}
         />
-        <TextInput
+        <MaskedPasswordInput
           style={styles.input}
           placeholder="Yeni şifre"
-          secureTextEntry
           value={newPassword}
           onChangeText={setNewPassword}
         />

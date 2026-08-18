@@ -33,13 +33,16 @@ load_dotenv(BASE_DIR / ".env", override=True)
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv("SECRET_KEY")
 
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", "True") == "True"
 
-ALLOWED_HOSTS = os.getenv(
-    "ALLOWED_HOSTS",
-    "127.0.0.1,localhost"
-).split(",")
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.getenv(
+        "ALLOWED_HOSTS",
+        "127.0.0.1,localhost"
+    ).split(",")
+    if host.strip()
+]
 # Application definition
 #,192.168.1.113
 INSTALLED_APPS = [
@@ -162,14 +165,21 @@ SIMPLE_JWT = {
 
 # CORS Configuration
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
-    'http://localhost:8081',
-    'http://127.0.0.1:3000',
-    'http://127.0.0.1:8081',
+    origin.strip()
+    for origin in os.getenv(
+        "CORS_ALLOWED_ORIGINS",
+        "http://localhost:3000,http://localhost:8081,http://127.0.0.1:3000,http://127.0.0.1:8081"
+    ).split(",")
+    if origin.strip()
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True  # Development için - production'da kısıtlayın
+CORS_ALLOW_ALL_ORIGINS = False
 
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
+    if origin.strip()
+]
 if not DEBUG:
 
     SESSION_COOKIE_SECURE = True

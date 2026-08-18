@@ -1,12 +1,12 @@
 from django.urls import path
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework_simplejwt.views import TokenRefreshView
 from .views import (AddWordView, StreakView, TranslateWordView, WordInfoView,WordListView,RandomWordView,DeleteWordView,
-                    ReviewWordView,WeakWordsView, ReviewSessionView, LevelWordsView, LevelWordsSubmitView, RegisterView, 
+                    ReviewWordView,WeakWordsView, ReviewSessionView, LevelWordsView, LevelWordsSubmitView, RegisterView, LoginView,
                     MeView, ChangePasswordView, DeleteAccountView, health_check)
 
 urlpatterns = [
     path("auth/register/", RegisterView.as_view()),
-    path("auth/login/", TokenObtainPairView.as_view()),
+    path("auth/login/", LoginView.as_view()),
     path("auth/refresh/", TokenRefreshView.as_view()),
     path("auth/me/", MeView.as_view()),
     path("auth/change-password/", ChangePasswordView.as_view()),

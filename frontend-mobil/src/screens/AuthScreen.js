@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import MaskedPasswordInput from "../components/MaskedPasswordInput";
 import { login, register } from "../services/authService";
 
 export default function AuthScreen({ onAuthenticated }) {
@@ -36,7 +37,7 @@ export default function AuthScreen({ onAuthenticated }) {
       <Text style={styles.title}>RecallWord</Text>
       <Text style={styles.subtitle}>{isRegistering ? "Hesabını oluştur" : "Hesabına giriş yap"}</Text>
       <TextInput style={styles.input} value={username} onChangeText={setUsername} autoCapitalize="none" placeholder="Kullanıcı adı" />
-      <TextInput style={styles.input} value={password} onChangeText={setPassword} secureTextEntry placeholder="Parola" />
+      <MaskedPasswordInput style={styles.input} value={password} onChangeText={setPassword} placeholder="Parola" />
       <TouchableOpacity style={styles.button} onPress={submit} disabled={loading}>
         <Text style={styles.buttonText}>{loading ? "Bekleyin..." : isRegistering ? "Kayıt ol" : "Giriş yap"}</Text>
       </TouchableOpacity>

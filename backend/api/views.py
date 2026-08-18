@@ -2,9 +2,11 @@ from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework_simplejwt.tokens import RefreshToken
 from datetime import timedelta
 from django.utils import timezone
 from django.contrib.auth import get_user_model
+from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.http import JsonResponse
@@ -40,7 +42,7 @@ class RegisterView(APIView):
         except ValidationError as error:
             return Response({"error": " ".join(error.messages)}, status=400)
 
-        existing_user = User.objects.filter(username=username).first()
+        existing_user = User.objects.filter(username__iexact=username).first()
         if existing_user:
             return Response({"error": "An account with this username already exists."}, status=400)
 
@@ -53,6 +55,35 @@ class RegisterView(APIView):
         return Response(
             {"id": user.id, "username": user.username, "message": "Registration successful."},
             status=status.HTTP_201_CREATED,
+        )
+
+
+class LoginView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        username = (request.data.get("username") or "").strip()
+        password = request.data.get("password") or ""
+
+        if not username or not password:
+            return Response({"error": "Username and password are required."}, status=400)
+
+        user = User.objects.filter(username__iexact=username).first()
+        if not user:
+            return Response({"error": "Invalid username or password."}, status=401)
+
+        authenticated = authenticate(username=user.username, password=password)
+        if not authenticated:
+            return Response({"error": "Invalid username or password."}, status=401)
+
+        refresh = RefreshToken.for_user(authenticated)
+        return Response(
+            {
+                "refresh": str(refresh),
+                "access": str(refresh.access_token),
+                "user": {"id": authenticated.id, "username": authenticated.username},
+            },
+            status=200,
         )
 
 
@@ -466,7 +497,7 @@ class TranslateWordView(APIView):
 class ReviewSessionView(APIView):
 
     def get(self, request):
-        # 1. Kelimeleri kategorilerine göre veritabanından çek ve listeye çevir
+
         new_words = list(
             Word.objects.filter(
                 user=request.user,
@@ -476,10 +507,11 @@ class ReviewSessionView(APIView):
         )
 
         learning_words = []
-
         known_words = []
 
-        for word in Word.objects.filter(user=request.user).exclude(
+        for word in Word.objects.filter(
+            user=request.user
+        ).exclude(
             known_count=0,
             unknown_count=0
         ):
@@ -492,42 +524,35 @@ class ReviewSessionView(APIView):
             else:
                 known_words.append(word)
 
-        known_words = list(
-            Word.objects.filter(
-                user=request.user,
-                known_count__gt=0,
-                unknown_count=0
-            )
-        )
-
-        # 2. Her kategoriyi kendi içinde karıştır
         random.shuffle(new_words)
         random.shuffle(learning_words)
         random.shuffle(known_words)
 
-        # 3. Öncelikli kelimeleri birleştir ve tekrar karıştır
         priority_words = new_words + learning_words
         random.shuffle(priority_words)
 
         session = []
 
-        # 4. Kelimeleri 4 öncelikli, 1 bilinen olacak şekilde sırayla listeye diz
         while priority_words or known_words:
-            
-            # Maksimum 4 tane öncelikli kelime ekle
+
             for _ in range(4):
                 if priority_words:
                     session.append(priority_words.pop())
-            
-            # Ardından 1 tane bilinen kelime ekle
+
             if known_words:
                 session.append(known_words.pop())
 
-        # 5. Oluşan session listesini JSON formatına dönüştür
         data = []
+
         for word in session:
+
             total_reviews = word.known_count + word.unknown_count
-            trust_point = round(word.known_count / total_reviews, 2) if total_reviews else 0.0
+
+            trust_point = (
+                round(word.known_count / total_reviews, 2)
+                if total_reviews
+                else 0.0
+            )
 
             data.append({
                 "id": word.id,

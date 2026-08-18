@@ -4,7 +4,7 @@ from django.test import TestCase
 from rest_framework.test import APIClient
 
 from django.contrib.auth import get_user_model
-from .models import Word, WordBank
+from .models import AccountActionToken, Word, WordBank
 from .services.services_tr import translate_word
 
 
@@ -150,3 +150,23 @@ class AccountSettingsTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertFalse(get_user_model().objects.filter(pk=self.user.pk).exists())
+
+
+class UserCleanupTests(TestCase):
+    def test_user_deletion_removes_related_account_action_tokens(self):
+        user = get_user_model().objects.create_user(
+            username="cleanup@example.com",
+            email="cleanup@example.com",
+            password="secure-test-password",
+        )
+
+        AccountActionToken.objects.create(
+            user=user,
+            action="delete_account",
+            expires_at=None,
+            pending_value="pending",
+        )
+
+        user.delete()
+
+        self.assertFalse(AccountActionToken.objects.filter(user_id=user.pk).exists())

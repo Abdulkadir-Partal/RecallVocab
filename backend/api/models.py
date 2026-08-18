@@ -143,6 +143,43 @@ class LevelProgress(models.Model):
     def __str__(self):
         return self.current_level
 
+class EmailVerificationToken(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="email_verification_tokens",
+    )
+    token = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    expires_at = models.DateTimeField(null=True, blank=True)
+    used_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Email verification token for {self.user_id}"
+
+
+class AccountActionToken(models.Model):
+    ACTION_CHOICES = [
+        ("password_change", "password_change"),
+        ("delete_account", "delete_account"),
+    ]
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="account_action_tokens",
+    )
+    action = models.CharField(max_length=32, choices=ACTION_CHOICES)
+    token = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    expires_at = models.DateTimeField(null=True, blank=True)
+    used_at = models.DateTimeField(null=True, blank=True)
+    pending_value = models.CharField(max_length=255, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.action} token for user {self.user_id}"
+
+
 class WordBank(models.Model):
     word = models.CharField(max_length=100, unique=True, db_index=True)
     meaning1 = models.CharField(max_length=255, blank=True)
