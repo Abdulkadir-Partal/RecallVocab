@@ -39,7 +39,7 @@ ALLOWED_HOSTS = [
     host.strip()
     for host in os.getenv(
         "ALLOWED_HOSTS",
-        "127.0.0.1,localhost"
+        "127.0.0.1,localhost,192.168.1.113"
     ).split(",")
     if host.strip()
 ]
@@ -168,7 +168,7 @@ CORS_ALLOWED_ORIGINS = [
     origin.strip()
     for origin in os.getenv(
         "CORS_ALLOWED_ORIGINS",
-        "http://localhost:3000,http://localhost:8081,http://127.0.0.1:3000,http://127.0.0.1:8081"
+        "http://localhost:3000,http://localhost:8081,http://127.0.0.1:3000,http://127.0.0.1:8081,http://192.168.1.113:8000"
     ).split(",")
     if origin.strip()
 ]

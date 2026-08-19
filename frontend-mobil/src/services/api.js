@@ -2,8 +2,12 @@ import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 
 const api = axios.create({
-  baseURL: process.env.EXPO_PUBLIC_API_URL,
+  baseURL: "https://recallvocab-production.up.railway.app/api/", // Replace with your backend URL
 });
+//https://recallvocab-production.up.railway.app/api/
+//https://recallvocab.onrender.com/api
+//http://127.0.0.1:8000/api
+//"http://192.168.1.113:8000/api/"
 api.interceptors.request.use(async (config) => {
   const token = await SecureStore.getItemAsync("access_token");
   if (token) {
