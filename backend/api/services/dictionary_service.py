@@ -9,7 +9,8 @@ class DictionaryService:
     def get_word_info(cls, word):
 
         response = requests.get(
-            cls.BASE_URL + word.lower()
+            cls.BASE_URL + word.lower(),
+            timeout=10,
         )
 
         if response.status_code != 200:

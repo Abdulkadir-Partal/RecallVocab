@@ -3,6 +3,7 @@ import * as SecureStore from "expo-secure-store";
 
 const api = axios.create({
   baseURL: "https://recallvocab-production.up.railway.app/api/", // Replace with your backend URL
+  timeout: 15000,
 });
 //https://recallvocab-production.up.railway.app/api/
 //https://recallvocab.onrender.com/api
