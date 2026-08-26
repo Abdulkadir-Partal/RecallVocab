@@ -26,6 +26,10 @@ export default StyleSheet.create({
     borderColor: BORDER,
   },
 
+  scrollContent: {
+    paddingBottom: 20,
+  },
+
   handle: {
     width: 50,
     height: 5,

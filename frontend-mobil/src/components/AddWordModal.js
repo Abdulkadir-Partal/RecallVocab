@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import {Modal,View,Text,TextInput,TouchableOpacity,Animated,PanResponder,Dimensions,Easing,} from "react-native";
+import {Modal,View,Text,TextInput,TouchableOpacity,Animated,PanResponder,Dimensions,Easing,KeyboardAvoidingView,Platform,ScrollView,} from "react-native";
 import styles from "../../styles/AddWordModalStyles";
 import api from "../services/api";
 import { Ionicons } from "@expo/vector-icons";
@@ -23,8 +23,6 @@ export default function AddWordModal({
 
   const timeoutRef = useRef(null);
 
-  // Kart başlangıçta ekranın altında, overlay tamamen şeffaf.
-  // Modal'ın kendi animasyonunu kapattığımız için açılışı da biz yönetiyoruz.
   const translateY = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
   const overlayOpacity = useRef(new Animated.Value(0)).current;
 
@@ -75,9 +73,6 @@ export default function AddWordModal({
         useNativeDriver: true,
       }),
     ]).start(() => {
-      // Animasyon tamamen bittikten sonra state'i temizle ve modal'ı kapat.
-      // translateY'yi burada tekrar 0'a çekmiyoruz -- bir sonraki açılışta
-      // useEffect zaten SCREEN_HEIGHT'ten başlatıp yeniden animasyonla açacak.
       resetFormState();
       onClose();
     });
@@ -192,84 +187,93 @@ export default function AddWordModal({
       visible={visible}
       animationType="none"
       transparent
+      statusBarTranslucent
       onRequestClose={closeWithAnimation}
     >
       <Animated.View style={[styles.overlay, { opacity: overlayOpacity }]}>
-
-        <Animated.View
-          style={[
-            styles.container,
-            { transform: [{ translateY }] },
-          ]}
+        <KeyboardAvoidingView
+          style={{ flex: 1, justifyContent: "flex-end" }}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
+          <Animated.View
+            style={[
+              styles.container,
+              { transform: [{ translateY }] },
+            ]}
+          >
+            <ScrollView
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.scrollContent}
+            >
+              <View {...panResponder.panHandlers} style={styles.dragArea}>
+                <View style={styles.handle} />
+              </View>
 
-          <View {...panResponder.panHandlers} style={styles.dragArea}>
-            <View style={styles.handle} />
-          </View>
+              <Text style={styles.title}>Add New Word</Text>
 
-          <Text style={styles.title}>
-            Add New Word
-          </Text>
+              <Button
+                title="✨ AI ile Üret"
+                onPress={() => setShowLevelWords(true)}
+                variant="ai"
+              />
 
-          <Button
-            title="✨ AI ile Üret"
-            onPress={() => setShowLevelWords(true)}
-            variant="ai"
-          />
+              <View style={styles.switchRow}>
+                <Text style={styles.label}>
+                  {direction === "en_to_tr" ? "English Word" : "Turkish Word"}
+                </Text>
 
-          <View style={styles.switchRow}>
-            <Text style={styles.label}>
-              {direction === "en_to_tr" ? "English Word" : "Turkish Word"}
-            </Text>
+                <Button
+                  variant="icon"
+                  onPress={toggleDirection}
+                  icon={
+                    <Ionicons
+                      name="swap-horizontal"
+                      size={24}
+                      color="#111827"
+                    />
+                  }
+                />
+              </View>
 
-            <Button
-              variant="icon"
-              onPress={toggleDirection}
-              icon={<Ionicons name="swap-horizontal" size={24} color="#111827" />}
+              <TextInput
+                style={styles.input}
+                placeholder={
+                  direction === "en_to_tr"
+                    ? "Type an English word..."
+                    : "Type a Turkish word..."
+                }
+                placeholderTextColor="#7A7563"
+                value={word}
+                onChangeText={handleWordChange}
+              />
+
+              <Text style={styles.label}>
+                {direction === "en_to_tr" ? "Turkish Meaning" : "English Meaning"}
+              </Text>
+
+              <View style={styles.meaningBox}>
+                {isTranslating ? (
+                  <Text style={styles.meaning}>Translating...</Text>
+                ) : (
+                  <Text style={styles.meaning}>
+                    {meaning || "Translation will appear here"}
+                  </Text>
+                )}
+              </View>
+
+              <Button title="Save" onPress={saveWord} />
+
+              <Button title="Cancel" onPress={handleClose} variant="text" />
+            </ScrollView>
+
+            <AILevelWordsModal
+              visible={showLevelWords}
+              onClose={() => setShowLevelWords(false)}
+              onWordsAdded={onWordAdded}
             />
-          </View>
-
-          <TextInput
-            style={styles.input}
-            placeholder={
-              direction === "en_to_tr"
-                ? "Type an English word..."
-                : "Type a Turkish word..."
-            }
-            value={word}
-            onChangeText={handleWordChange}
-          />
-
-          <Text style={styles.label}>
-            {direction === "en_to_tr" ? "Turkish Meaning" : "English Meaning"}
-          </Text>
-
-          <View style={styles.meaningBox}>
-
-            {isTranslating ? (
-              <Text style={styles.meaning}>
-                Translating...
-              </Text>
-            ) : (
-              <Text style={styles.meaning}>
-                {meaning || "Translation will appear here"}
-              </Text>
-            )}
-
-          </View>
-
-          <Button title="Save" onPress={saveWord} />
-
-          <Button title="Cancel" onPress={handleClose} variant="text" />
-
-          <AILevelWordsModal
-            visible={showLevelWords}
-            onClose={() => setShowLevelWords(false)}
-            onWordsAdded={onWordAdded}
-          />
-
-        </Animated.View>
-
+          </Animated.View>
+        </KeyboardAvoidingView>
       </Animated.View>
     </Modal>
   );

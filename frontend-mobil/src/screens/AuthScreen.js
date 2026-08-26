@@ -34,10 +34,10 @@ export default function AuthScreen({ onAuthenticated }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>RecallWord</Text>
+      <Text style={styles.title}>Recall Vocab</Text>
       <Text style={styles.subtitle}>{isRegistering ? "Hesabını oluştur" : "Hesabına giriş yap"}</Text>
-      <TextInput style={styles.input} value={username} onChangeText={setUsername} autoCapitalize="none" placeholder="Kullanıcı adı" />
-      <MaskedPasswordInput style={styles.input} value={password} onChangeText={setPassword} placeholder="Parola" />
+      <TextInput style={styles.input} value={username} onChangeText={setUsername} autoCapitalize="none" placeholder="Kullanıcı adı" placeholderTextColor="#7A7563"/>
+      <MaskedPasswordInput style={styles.input} value={password} onChangeText={setPassword} placeholder="Parola" placeholderTextColor="#7A7563"/>
       <TouchableOpacity style={styles.button} onPress={submit} disabled={loading}>
         <Text style={styles.buttonText}>{loading ? "Bekleyin..." : isRegistering ? "Kayıt ol" : "Giriş yap"}</Text>
       </TouchableOpacity>

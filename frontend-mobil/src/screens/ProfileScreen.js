@@ -61,12 +61,14 @@ export default function ProfileScreen({ navigation, onLogout }) {
           placeholder="Mevcut şifre"
           value={currentPassword}
           onChangeText={setCurrentPassword}
+          placeholderTextColor="#7A7563"
         />
         <MaskedPasswordInput
           style={styles.input}
           placeholder="Yeni şifre"
           value={newPassword}
           onChangeText={setNewPassword}
+          placeholderTextColor="#7A7563"
         />
         <TouchableOpacity style={styles.primaryButton} onPress={handleChangePassword} disabled={passwordLoading}>
           <Text style={styles.buttonText}>{passwordLoading ? "Gönderiliyor..." : "Şifreyi değiştir"}</Text>

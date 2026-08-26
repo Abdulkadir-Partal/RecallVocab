@@ -11,12 +11,14 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.http import JsonResponse
 from rest_framework.permissions import AllowAny
+from rest_framework.throttling import ScopedRateThrottle
 from .models import Word, Review, LevelProgress, WordBank
 from .serializers import WordSerializer, ReviewSerializer, WordSerializer
 from .services.services_tr import translate_word
 import random
 from .services.dictionary_service import DictionaryService
 from .services.wordbank_service import WordBankService
+
 
 LEVEL_ORDER = ["A1", "A2", "B1", "B2", "C1", "C2"]
 User = get_user_model()
@@ -124,8 +126,38 @@ class DeleteAccountView(APIView):
 
         request.user.delete()
         return Response({"message": "Account deleted successfully."}, status=200)
+        
+# enson bu kısım eklendi delete url için ---------------------------------------------------------------------------
+class DeleteAccountWebView(APIView):
+    permission_classes = [AllowAny]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "account_delete"
 
+    def post(self, request):
+        username = (request.data.get("username") or "").strip()
+        password = request.data.get("password") or ""
 
+        if not username or not password:
+            return Response(
+                {"error": "Username and password are required."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        user = User.objects.filter(username__iexact=username).first()
+
+        if not user or not user.check_password(password):
+            return Response(
+                {"error": "Invalid username or password."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        user.delete()
+
+        return Response(
+            {"message": "Account deleted successfully."},
+            status=status.HTTP_200_OK
+        )
+####################################
 class LevelWordsView(APIView):
 
     def get(self, request):
