@@ -156,7 +156,8 @@ REST_FRAMEWORK = {
         "rest_framework.permissions.IsAuthenticated",
     ),
     "DEFAULT_THROTTLE_RATES": {
-        "account_delete": "5/hour",
+        "account_delete": "20/minute",
+        #5/hour
     },
 }
 

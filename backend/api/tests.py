@@ -151,6 +151,18 @@ class AccountSettingsTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertFalse(get_user_model().objects.filter(pk=self.user.pk).exists())
 
+    def test_delete_account_web_authenticates_username_and_password(self):
+        self.client.logout()
+
+        response = self.client.post(
+            "/api/auth/delete-account-web/",
+            {"username": self.user.username.upper(), "password": "secure-test-password"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(get_user_model().objects.filter(pk=self.user.pk).exists())
+
 
 class UserCleanupTests(TestCase):
     def test_user_deletion_removes_related_account_action_tokens(self):

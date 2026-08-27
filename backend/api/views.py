@@ -144,8 +144,12 @@ class DeleteAccountWebView(APIView):
             )
 
         user = User.objects.filter(username__iexact=username).first()
+        authenticated = authenticate(
+            username=user.username if user else username,
+            password=password,
+        )
 
-        if not user or not user.check_password(password):
+        if not user or not authenticated or authenticated.pk != user.pk:
             return Response(
                 {"error": "Invalid username or password."},
                 status=status.HTTP_400_BAD_REQUEST
