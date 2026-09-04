@@ -12,11 +12,18 @@ def translate_word(word, source_language="en"):
         f"?q={word}&langpair={langpair}"
     )
 
-    response = requests.get(url, timeout=10)
+    try:
+        response = requests.get(url, timeout=5)
+    except requests.exceptions.RequestException:
+        return None
 
-    if response.status_code == 200:
+    if response.status_code != 200:
+        return None
+
+    try:
         data = response.json()
-        translated_text = data.get("responseData", {}).get("translatedText")
-        return translated_text
+    except ValueError:
+        return None
 
-    return None
+    translated_text = data.get("responseData", {}).get("translatedText")
+    return translated_text

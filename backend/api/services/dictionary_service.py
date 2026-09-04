@@ -8,15 +8,24 @@ class DictionaryService:
     @classmethod
     def get_word_info(cls, word):
 
-        response = requests.get(
-            cls.BASE_URL + word.lower(),
-            timeout=10,
-        )
+        try:
+            response = requests.get(
+                cls.BASE_URL + word.lower(),
+                timeout=5,
+            )
+        except requests.exceptions.RequestException:
+            # Zaman aşımı, bağlantı hatası vb. — sözlük bilgisi olmadan devam et
+            return None
 
         if response.status_code != 200:
             return None
 
-        data = response.json()[0]
+        try:
+            payload = response.json()
+            data = payload[0]
+        except (ValueError, IndexError, KeyError):
+            # Beklenmeyen/boş JSON gövdesi
+            return None
 
         definition = ""
         example = ""
