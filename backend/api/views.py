@@ -641,10 +641,7 @@ class WordInfoView(APIView):
         word = request.data.get("word")
 
         if not word:
-            return Response(
-                {"error": "Word is required"},
-                status=400
-            )
+            return Response({"error": "Word is required"}, status=400)
 
         try:
             obj = Word.objects.select_related("word_bank").get(
@@ -652,25 +649,12 @@ class WordInfoView(APIView):
                 english_word__iexact=word
             )
         except Word.DoesNotExist:
-            return Response(
-                {"error": "Word not found"},
-                status=404
-            )
+            return Response({"error": "Word not found"}, status=404)
 
         bank = obj.word_bank
 
         if bank is not None:
-            # Ortak önbellek: herhangi bir kullanıcı için bir kez
-            # çözüldükten sonra tüm kullanıcılar anında yararlanır.
-            if not bank.definition:
-                data = DictionaryService.get_word_info(word)
-                if data:
-                    bank.definition = data.get("definition", "")
-                    bank.example = data.get("example", "")
-                    bank.phonetic = data.get("phonetic", "")
-                bank.audio_url = data.get("audio", "")
-                bank.save(update_fields=["definition", "example", "phonetic", "audio_url"])
-
+            has_details = bool(bank.definition or bank.example)
             return Response({
                 "meaning1": obj.turkish_meaning,
                 "meaning2": obj.turkish_meaning2,
@@ -680,19 +664,11 @@ class WordInfoView(APIView):
                 "example": bank.example,
                 "phonetic": bank.phonetic,
                 "audio": bank.audio_url,
+                "has_details": has_details,
             })
 
-        # word_bank yoksa (nadir durum, örn. WordBank kaydı silinmişse)
-        # eski davranışa (Word üzerinde) geri dön.
-        if not obj.definition:
-            data = DictionaryService.get_word_info(word)
-            if data:
-                obj.definition = data.get("definition", "")
-                obj.example = data.get("example", "")
-                obj.phonetic = data.get("phonetic", "")
-                obj.audio_url = data.get("audio", "")
-                obj.save()
-
+        # word_bank yoksa (nadir durum)
+        has_details = bool(obj.definition or obj.example)
         return Response({
             "meaning1": obj.turkish_meaning,
             "meaning2": obj.turkish_meaning2,
@@ -702,7 +678,9 @@ class WordInfoView(APIView):
             "example": obj.example,
             "phonetic": obj.phonetic,
             "audio": obj.audio_url,
+            "has_details": has_details,
         })
+    
 #streak kısmı eklendi--------------------------------------------------------------------------------------------------------
 def is_day_completed(user, day):
 
