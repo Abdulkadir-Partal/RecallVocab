@@ -193,7 +193,15 @@ class WordBank(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
+    # Dictionary API sonuçları — kullanıcıya özel değil, tüm kullanıcılar
+    # arasında paylaşılan ortak önbellek. Bir kelime bir kez çözüldükten
+    # sonra herkes için anında hazır olur.
+    definition = models.TextField(blank=True, default="")
+    example = models.TextField(blank=True, default="")
+    phonetic = models.CharField(max_length=100, blank=True, default="")
+    audio_url = models.URLField(blank=True, default="")
+    dictionary_lookup_done = models.BooleanField(default=False)
+
     def __str__(self):
         return self.word
-
 

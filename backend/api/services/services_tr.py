@@ -13,7 +13,7 @@ def translate_word(word, source_language="en"):
     )
 
     try:
-        response = requests.get(url, timeout=5)
+        response = requests.get(url, timeout=4)
     except requests.exceptions.RequestException:
         return None
 

@@ -647,46 +647,50 @@ class WordInfoView(APIView):
             )
 
         try:
-
-            obj = Word.objects.get(
+            obj = Word.objects.select_related("word_bank").get(
                 user=request.user,
                 english_word__iexact=word
             )
-
         except Word.DoesNotExist:
-
             return Response(
                 {"error": "Word not found"},
                 status=404
             )
 
-        # Dictionary API bilgileri daha önce çekilmediyse al
+        bank = obj.word_bank
+
+        if bank is not None:
+            # Ortak önbellek: herhangi bir kullanıcı için bir kez
+            # çözüldükten sonra tüm kullanıcılar anında yararlanır.
+            if not bank.definition:
+                data = DictionaryService.get_word_info(word)
+                if data:
+                    bank.definition = data.get("definition", "")
+                    bank.example = data.get("example", "")
+                    bank.phonetic = data.get("phonetic", "")
+                bank.audio_url = data.get("audio", "")
+                bank.save(update_fields=["definition", "example", "phonetic", "audio_url"])
+
+            return Response({
+                "meaning1": obj.turkish_meaning,
+                "meaning2": obj.turkish_meaning2,
+                "meaning3": obj.turkish_meaning3,
+                "level": obj.level,
+                "definition": bank.definition,
+                "example": bank.example,
+                "phonetic": bank.phonetic,
+                "audio": bank.audio_url,
+            })
+
+        # word_bank yoksa (nadir durum, örn. WordBank kaydı silinmişse)
+        # eski davranışa (Word üzerinde) geri dön.
         if not obj.definition:
-
             data = DictionaryService.get_word_info(word)
-
             if data:
-
-                obj.definition = data.get(
-                    "definition",
-                    ""
-                )
-
-                obj.example = data.get(
-                    "example",
-                    ""
-                )
-
-                obj.phonetic = data.get(
-                    "phonetic",
-                    ""
-                )
-
-                obj.audio_url = data.get(
-                    "audio",
-                    ""
-                )
-
+                obj.definition = data.get("definition", "")
+                obj.example = data.get("example", "")
+                obj.phonetic = data.get("phonetic", "")
+                obj.audio_url = data.get("audio", "")
                 obj.save()
 
         return Response({
