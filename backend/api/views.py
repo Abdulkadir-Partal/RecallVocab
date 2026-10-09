@@ -17,6 +17,7 @@ from .serializers import WordSerializer, ReviewSerializer, WordSerializer
 from .services.services_tr import translate_word
 import random
 from .services.dictionary_service import DictionaryService
+from .services.gemini_service import GeminiService
 from .services.wordbank_service import WordBankService
 
 
@@ -652,33 +653,36 @@ class WordInfoView(APIView):
             return Response({"error": "Word not found"}, status=404)
 
         bank = obj.word_bank
+        definition = bank.definition if bank is not None else obj.definition
+        example = bank.example if bank is not None else obj.example
 
-        if bank is not None:
-            has_details = bool(bank.definition or bank.example)
-            return Response({
-                "meaning1": obj.turkish_meaning,
-                "meaning2": obj.turkish_meaning2,
-                "meaning3": obj.turkish_meaning3,
-                "level": obj.level,
-                "definition": bank.definition,
-                "example": bank.example,
-                "phonetic": bank.phonetic,
-                "audio": bank.audio_url,
-                "has_details": has_details,
-            })
+        if not definition or not example:
+            details = GeminiService.get_word_details(bank.word if bank is not None else obj.english_word)
+            if details:
+                if not definition:
+                    definition = details.get("definition", "")
+                if not example:
+                    example = details.get("example", "")
 
-        # word_bank yoksa (nadir durum)
-        has_details = bool(obj.definition or obj.example)
+                if bank is not None:
+                    bank.definition = definition
+                    bank.example = example
+                    bank.save(update_fields=["definition", "example"])
+                else:
+                    obj.definition = definition
+                    obj.example = example
+                    obj.save(update_fields=["definition", "example"])
+
         return Response({
             "meaning1": obj.turkish_meaning,
             "meaning2": obj.turkish_meaning2,
             "meaning3": obj.turkish_meaning3,
             "level": obj.level,
-            "definition": obj.definition,
-            "example": obj.example,
-            "phonetic": obj.phonetic,
-            "audio": obj.audio_url,
-            "has_details": has_details,
+            "definition": definition,
+            "example": example,
+            "phonetic": bank.phonetic if bank is not None else obj.phonetic,
+            "audio": bank.audio_url if bank is not None else obj.audio_url,
+            "has_details": bool(definition or example),
         })
     
 #streak kısmı eklendi--------------------------------------------------------------------------------------------------------
@@ -795,4 +799,3 @@ class StreakView(APIView):
 
         })
 #streak kısmı eklendi--------------------------------------------------------------------------------------------------------
-

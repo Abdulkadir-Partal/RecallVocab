@@ -101,6 +101,75 @@ class WordPreviewAndSaveTests(TestCase):
         self.assertEqual(saved.data["turkish_meaning"], preview.data["meaning"])
 
 
+class WordInfoDetailsTests(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            username="word-info@example.com",
+            password="word-info-test-password",
+        )
+        self.client = APIClient()
+        self.client.force_authenticate(self.user)
+        self.bank = WordBank.objects.create(
+            word="house",
+            meaning1="ev",
+            source="csv",
+        )
+        self.word = Word.objects.create(
+            user=self.user,
+            word_bank=self.bank,
+            english_word="house",
+            turkish_meaning="ev",
+        )
+
+    @patch("api.views.GeminiService.get_word_details")
+    def test_missing_csv_details_are_generated_and_cached(self, mock_get_word_details):
+        mock_get_word_details.return_value = {
+            "definition": "A building where people live.",
+            "example": "They bought a new house.",
+        }
+
+        response = self.client.post(
+            "/api/word-info/", {"word": "house"}, format="json"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["definition"], "A building where people live.")
+        self.assertEqual(response.data["example"], "They bought a new house.")
+        self.assertTrue(response.data["has_details"])
+        mock_get_word_details.assert_called_once_with("house")
+
+        self.bank.refresh_from_db()
+        self.assertEqual(self.bank.definition, "A building where people live.")
+        self.assertEqual(self.bank.example, "They bought a new house.")
+
+    @patch("api.views.GeminiService.get_word_details")
+    def test_existing_csv_details_are_returned_without_gemini(self, mock_get_word_details):
+        self.bank.definition = "A building where people live."
+        self.bank.example = "They bought a new house."
+        self.bank.save(update_fields=["definition", "example"])
+
+        response = self.client.post(
+            "/api/word-info/", {"word": "house"}, format="json"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["definition"], self.bank.definition)
+        self.assertEqual(response.data["example"], self.bank.example)
+        mock_get_word_details.assert_not_called()
+
+    @patch("api.views.GeminiService.get_word_details", return_value=None)
+    def test_gemini_failure_returns_empty_details(self, mock_get_word_details):
+        response = self.client.post(
+            "/api/word-info/", {"word": "house"}, format="json"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["definition"], "")
+        self.assertEqual(response.data["example"], "")
+        self.assertFalse(response.data["has_details"])
+        mock_get_word_details.assert_called_once_with("house")
+
+
 class UserRegistrationTests(TestCase):
     def test_user_registration_and_login_with_username(self):
         username = "newuser"
