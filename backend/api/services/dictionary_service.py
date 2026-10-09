@@ -11,7 +11,7 @@ class DictionaryService:
         try:
             response = requests.get(
                 cls.BASE_URL + word.lower(),
-                timeout=5,
+                timeout=2,
             )
         except requests.exceptions.RequestException:
             # Zaman aşımı, bağlantı hatası vb. — sözlük bilgisi olmadan devam et

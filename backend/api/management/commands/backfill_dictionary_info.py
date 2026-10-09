@@ -1,8 +1,7 @@
-# management/commands/backfill_dictionary_info.py
 import time
 from django.core.management.base import BaseCommand
-from words.models import WordBank
-from words.services.dictionary_service import DictionaryService
+from api.models import WordBank
+from api.services.dictionary_service import DictionaryService
 
 
 class Command(BaseCommand):
